@@ -1,20 +1,9 @@
 import requests
 import json
 import os
-    # pwd = 'Xip01qzc!'
-    # email_address = 'noah@videcrantz.com'
+from datetime import datetime, timedelta
+import pytz
 
-    # print('authenticating...')
-    # url = 'https://users.premierleague.com/accounts/login/'
-    # payload = {
-    #  'password': pwd,
-    #  'login': email_address,
-    #  'redirect_uri': 'https://fantasy.premierleague.com/a/login',
-    #  'app': 'plfpl-web'
-    # }
-    # response = session.post(url, data=payload)
-    # if (not assert_success(response)):
-    #     return
 
 def assert_success(response):
     if(response.status_code != 200):
@@ -209,9 +198,52 @@ def load_player_data(pid, gw=1):
             return data
 
 
+
+def trigger_workflow(cron_expr):
+    # GitHub API URL for repository dispatch
+    url = f"https://api.github.com/repos/{os.getenv('GITHUB_REPOSITORY')}/dispatches"
+    
+    # Payload for the repository dispatch event
+    payload = {
+        "event_type": "update-cron",
+        "client_payload": {
+            "cron": cron_expr
+        }
+    }
+    
+    # GitHub token (assumed to be stored in GitHub Secrets)
+    headers = {
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
+        "Accept": "application/vnd.github.everest-preview+json"
+    }
+    
+    # Make the POST request
+    response = requests.post(url, json=payload, headers=headers)
+    
+    if response.status_code == 204:
+        print("Successfully triggered workflow")
+    else:
+        print(f"Failed to trigger workflow: {response.text}")
+
+
+def main():
+    if get_all_data():
+        current_gw, _ = determine_current_gameweek()
+        next_gw = current_gw + 1
+        if next_gw <= 38:
+            data = load_json(f'./data/w{current_gw}/static.json')
+            deadline = datetime.strptime(data["events"][current_gw]["deadline_time"], '%Y-%m-%dT%H:%M:%SZ')
+            local_deadline = deadline.astimezone(pytz.timezone('Europe/Copenhagen'))
+            final_dealine = local_deadline - timedelta(days=1)
+            cron_date = f"0 {final_dealine.hour} {final_dealine.day} {final_dealine.month} *"
+            print(cron_date)
+            # trigger_workflow(cron_date)
+
+
 # get_all_data()
 if __name__ == "__main__":
-    print(get_all_data())
+    main()
+
     # extract_meta_data(1)
     # load_player_data(200)
 
