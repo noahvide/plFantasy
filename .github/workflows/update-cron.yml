@@ -1,0 +1,33 @@
+# .github/workflows/update-cron.yml
+name: Update Cron Schedule
+
+on:
+  repository_dispatch:
+    types: [update-cron]  # Custom event to trigger cron update
+
+jobs:
+  update_cron_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Update Workflow Cron
+        run: |
+          # The cron expression is received via the 'client_payload' in the repository_dispatch event
+          # Update the cron schedule for the desired workflow
+          NEW_CRON="${{ github.event.client_payload.cron }}"
+          
+          echo "New Cron Expression: $NEW_CRON"
+
+          # Use sed to replace the existing cron expression with the new one in your target workflow
+          sed -i "s/cron: '.*'/cron: '$NEW_CRON'/" .github/workflows/main.yml
+
+      - name: Commit and Push Cron Change
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .github/workflows/run-python-script.yml
+          git commit -m "Update cron schedule to $NEW_CRON"
+          git push
