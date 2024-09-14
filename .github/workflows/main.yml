@@ -1,8 +1,8 @@
 # .github/workflows/run-python-script.yml
-name: Retrieve data and update cron
+name: Retrieve data
 
 on:
-  workflow_dispatch:  # This allows you to trigger the workflow manually
+  workflow_dispatch:
 
 jobs:
   run_script:
@@ -21,12 +21,27 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install python-dotenv
-          # Install other dependencies if needed
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Python Script to Update Cron Schedule
+        id: run_script  # Assign ID to refer to later
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub auto-generated token
-          GITHUB_REPOSITORY: ${{ github.repository }}  # Repository name
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          python draftAPI.py
+          python draftAPI.py  # Replace with your actual script
+        continue-on-error: true  # Continue workflow even if script fails
+
+      - name: Check Script Result and Send Email on Failure
+        if: steps.run_script.outcome == 'failure'  # Check if script failed
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "GitHub Action Failure Notification"
+          to: "noah2noah@gmail.com"
+          from: "noah2noah@gmail.com"
+          body: "The Python script for draftAPI failed to run. Please check the logs for more details."
+          secure: true
