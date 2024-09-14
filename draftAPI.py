@@ -3,6 +3,10 @@ import json
 import os
 from datetime import datetime, timedelta
 import pytz
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 def assert_success(response):
@@ -222,8 +226,11 @@ def trigger_workflow(cron_expr):
     
     if response.status_code == 204:
         print("Successfully triggered workflow")
+        return True
     else:
-        print(f"Failed to trigger workflow: {response.text}")
+        print(f"Failed to trigger workflow: {response.status_code}")
+        print(f"Response: {response.text}")
+        return False
 
 
 def main():
@@ -236,11 +243,16 @@ def main():
             local_deadline = deadline.astimezone(pytz.timezone('Europe/Copenhagen'))
             final_dealine = local_deadline - timedelta(days=1)
             cron_date = f"0 {final_dealine.hour} {final_dealine.day} {final_dealine.month} *"
-            print(cron_date)
-            # trigger_workflow(cron_date)
+            # print(cron_date)
+            if trigger_workflow(cron_date):
+                return 0
+            else:
+                return 1
+        else:
+            return 1
+    else:
+        return 1
 
-
-# get_all_data()
 if __name__ == "__main__":
     main()
 
