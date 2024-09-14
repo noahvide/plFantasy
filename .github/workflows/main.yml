@@ -1,0 +1,32 @@
+# .github/workflows/run-python-script.yml
+name: Retrieve data and update cron
+
+on:
+  workflow_dispatch:  # This allows you to trigger the workflow manually
+
+jobs:
+  run_script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-dotenv
+          # Install other dependencies if needed
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Python Script to Update Cron Schedule
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub auto-generated token
+          GITHUB_REPOSITORY: ${{ github.repository }}  # Repository name
+        run: |
+          python draftAPI.py
