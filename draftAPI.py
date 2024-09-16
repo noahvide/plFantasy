@@ -217,9 +217,9 @@ def trigger_workflow(cron_expr):
     
     # GitHub token (assumed to be stored in GitHub Secrets)
     headers = {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
-        "Accept": "application/vnd.github.everest-preview+json"
-    }
+    "Authorization": f"token {os.getenv('PAT_TOKEN')}",
+    "Accept": "application/vnd.github.everest-preview+json"
+}
     
     # Make the POST request
     response = requests.post(url, json=payload, headers=headers)
@@ -236,6 +236,8 @@ def trigger_workflow(cron_expr):
 def main():
     if get_all_data():
         current_gw, _ = determine_current_gameweek()
+        folder_name = f"./data/w{current_gw}"
+        print(f"::set-output name=folder_name::{folder_name}")  # GitHub Actions syntax
         next_gw = current_gw + 1
         if next_gw <= 38:
             data = load_json(f'./data/w{current_gw}/static.json')

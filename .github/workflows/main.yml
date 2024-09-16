@@ -26,7 +26,14 @@ jobs:
       - name: Run Python Script to Update Cron Schedule
         id: run_script  # Assign ID to refer to later
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python draftAPI.py  # Replace with your actual script
+      - name: Commit and push JSON files
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add ${{ steps.run_script.outputs.folder_name }} 
+          git commit -m "Add files in ${{ steps.run_script.outputs.folder_name }}"
+          git push
