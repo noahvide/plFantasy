@@ -3,6 +3,8 @@ name: Retrieve data
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Default cron schedule (to be updated dynamically)
 
 jobs:
   run_script:
