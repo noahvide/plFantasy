@@ -32,13 +32,15 @@ def get_data(path, api):
 def get_all_data():
     gw, gw_done = determine_current_gameweek()
     if not gw_done:
-        print('Warning! Current gameweek is not finished!')
-        ignore_warning = input('Continue anyway? y/n: ')
-        if ignore_warning == 'n':
-            print(f'Got {ignore_warning} - stopping')
-            os.remove('./data/game.json')
-            return False
-        print(f'Got {ignore_warning} - continuing')
+        # print('Warning! Current gameweek is not finished!')
+        # ignore_warning = input('Continue anyway? y/n: ')
+        # if ignore_warning == 'n':
+        #     print(f'Got {ignore_warning} - stopping')
+        #     os.remove('./data/game.json')
+        #     return False
+        # print(f'Got {ignore_warning} - continuing')
+        print(f"Gameweek {gw} is not done")
+        return False
 
 
     base = './data/w' + str(gw)
@@ -53,6 +55,7 @@ def get_all_data():
     extract_meta_data(gw)
     extract_manager_events(gw)
     extract_manager_publics(gw)
+    print(f"Got all data for {gw}!")
     return True
 
 def determine_current_gameweek():
@@ -235,26 +238,30 @@ def trigger_workflow(cron_expr):
 
 
 def main():
-    # if get_all_data():
-    current_gw, _ = determine_current_gameweek()
-    folder_name = f"./data/w{current_gw}"
-    print(f"::set-output name=folder_name::{folder_name}")  # GitHub Actions syntax
-    next_gw = current_gw + 1
-    if next_gw <= 38:
-        data = load_json(f'./data/w{current_gw}/static.json')
-        deadline = datetime.strptime(data["events"][current_gw]["deadline_time"], '%Y-%m-%dT%H:%M:%SZ')
-        local_deadline = deadline.astimezone(pytz.timezone('Europe/Copenhagen'))
-        final_dealine = local_deadline - timedelta(days=1)
-        cron_date = f"0 {final_dealine.hour} {final_dealine.day} {final_dealine.month} *"
-        print(cron_date)
-        if trigger_workflow(cron_date):
-            return 0
+    if get_all_data():
+        current_gw, _ = determine_current_gameweek()
+        folder_name = f"./data/w{current_gw}"
+        print(f"Got data for gw: {current_gw}")
+        print(f"::set-output name=folder_name::{folder_name}")  # GitHub Actions syntax
+        next_gw = current_gw + 1
+        if next_gw <= 38:
+            data = load_json(f'./data/w{current_gw}/static.json')
+            deadline = datetime.strptime(data["events"][next_gw]["deadline_time"], '%Y-%m-%dT%H:%M:%SZ')
+            local_deadline = deadline.astimezone(pytz.timezone('Europe/Copenhagen'))
+            final_dealine = local_deadline - timedelta(days=1)
+            cron_date = f"0 {final_dealine.hour} {final_dealine.day} {final_dealine.month} *"
+            print(cron_date)
+            if trigger_workflow(cron_date):
+                return 0
+            else:
+                print("Could not trigger workflow")
+                return 1
         else:
+            print(f"Next gameweek({next_gw}) exceeds the maximum number of gameweeks({38})")
             return 1
     else:
+        print(f"Something went wrong getting data")
         return 1
-    # else:
-    #     return 1
 
 if __name__ == "__main__":
     main()
