@@ -4,7 +4,7 @@ name: Retrieve data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 10 27 9 *'  # Default cron schedule (to be updated dynamically)
+    - cron: '0 10 18 10 *'  # Default cron schedule (to be updated dynamically)
 
 jobs:
   run_script:
