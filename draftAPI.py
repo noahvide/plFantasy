@@ -224,7 +224,7 @@ def trigger_workflow(cron_expr):
         "Accept": "application/vnd.github.everest-preview+json",
         "X-GitHub-Api-Version": "2022-11-28"
     }
-    
+    print(os.getenv('PAT_TOKEN'))
     # Make the POST request
     response = requests.post(url, json=payload, headers=headers)
     
