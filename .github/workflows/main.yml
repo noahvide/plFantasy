@@ -28,7 +28,7 @@ jobs:
       - name: Run Python Script to Update Cron Schedule
         id: run_script  # Assign ID to refer to later
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python draftAPI.py  # Replace with your actual script
