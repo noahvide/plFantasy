@@ -238,30 +238,30 @@ def trigger_workflow(cron_expr):
 
 
 def main():
-    if get_all_data():
-        current_gw, _ = determine_current_gameweek()
-        folder_name = f"./data/w{current_gw}"
-        print(f"Got data for gw: {current_gw}")
-        print(f"::set-output name=folder_name::{folder_name}")  # GitHub Actions syntax
-        next_gw = current_gw + 1
-        if next_gw <= 38:
-            data = load_json(f'./data/w{current_gw}/static.json')
-            deadline = datetime.strptime(data["events"][next_gw]["deadline_time"], '%Y-%m-%dT%H:%M:%SZ')
-            local_deadline = deadline.astimezone(pytz.timezone('Europe/Copenhagen'))
-            final_dealine = local_deadline - timedelta(days=1)
-            cron_date = f"0 {final_dealine.hour} {final_dealine.day} {final_dealine.month} *"
-            print(cron_date)
-            if trigger_workflow(cron_date):
-                return 0
-            else:
-                print("Could not trigger workflow")
-                return 1
-        else:
-            print(f"Next gameweek({next_gw}) exceeds the maximum number of gameweeks({38})")
-            return 1
+    # if get_all_data():
+    #     current_gw, _ = determine_current_gameweek()
+    #     folder_name = f"./data/w{current_gw}"
+    #     print(f"Got data for gw: {current_gw}")
+    #     print(f"::set-output name=folder_name::{folder_name}")  # GitHub Actions syntax
+    #     next_gw = current_gw + 1
+    #     if next_gw <= 38:
+    data = load_json(f'./data/w{current_gw}/static.json')
+    deadline = datetime.strptime(data["events"][next_gw]["deadline_time"], '%Y-%m-%dT%H:%M:%SZ')
+    local_deadline = deadline.astimezone(pytz.timezone('Europe/Copenhagen'))
+    final_dealine = local_deadline - timedelta(days=1)
+    cron_date = f"0 {final_dealine.hour} {final_dealine.day} {final_dealine.month} *"
+    print(cron_date)
+    if trigger_workflow(cron_date):
+        return 0
     else:
-        print(f"Something went wrong getting data")
+        print("Could not trigger workflow")
         return 1
+    #     else:
+    #         print(f"Next gameweek({next_gw}) exceeds the maximum number of gameweeks({38})")
+    #         return 1
+    # else:
+    #     print(f"Something went wrong getting data")
+    #     return 1
 
 if __name__ == "__main__":
     main()
