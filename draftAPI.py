@@ -239,11 +239,11 @@ def trigger_workflow(cron_expr):
 
 def main():
     # if get_all_data():
-    #     current_gw, _ = determine_current_gameweek()
+    current_gw, _ = determine_current_gameweek()
     #     folder_name = f"./data/w{current_gw}"
     #     print(f"Got data for gw: {current_gw}")
     #     print(f"::set-output name=folder_name::{folder_name}")  # GitHub Actions syntax
-    #     next_gw = current_gw + 1
+    next_gw = current_gw + 1
     #     if next_gw <= 38:
     data = load_json(f'./data/w{current_gw}/static.json')
     deadline = datetime.strptime(data["events"][next_gw]["deadline_time"], '%Y-%m-%dT%H:%M:%SZ')
