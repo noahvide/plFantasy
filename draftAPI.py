@@ -158,18 +158,21 @@ def pid_to_pname(pid, gw):
 def restore_data(gws):
     # gws = [1, 2, 3, 4, 5, 6, 7]
     managers = extract_managers()
-
     for gw in gws:
         print(f'\nrestoring gw: {gw}...')
         base = './data/w' + str(gw)
         for manager in managers:
             # os.remove(base + '/entry_' + manager['name'] + '_event.json')
-            path = base + '/entry_' + manager['name'] + '.json'
-            api = 'https://draft.premierleague.com/api/entry/'+ str(manager['entry_id']) + '/event/' + str(gw)
-            get_data(path, api)
+            paths = [base + '/entry_' + manager['name'] + '.json', 
+                     base + '/entry_' + manager['name'] + '_meta' + '.json']
+            apis = ['https://fantasy.premierleague.com/api/entry/'+ str(manager['entry_id']) +'/event/' + str(gw) + '/picks/',
+                'https://fantasy.premierleague.com/api/entry/' + str(manager['entry_id'])]
+            for path, api in zip(paths,apis):
+                get_data(path, api)
 
+            
         path_live = base + '/live.json'
-        api_live = 'https://draft.premierleague.com/api/event/' + str(gw) + '/live'
+        api_live = 'https://fantasy.premierleague.com/api/event/' + str(gw) + '/live'
         get_data(path_live, api_live)
 
 
@@ -265,7 +268,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+    # restore_data([1,2,3])
     # extract_meta_data(1)
     # load_player_data(200)
 
