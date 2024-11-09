@@ -1,0 +1,23 @@
+{
+    "status": [
+        {
+            "bonus_added": true,
+            "date": "2024-11-02",
+            "event": 10,
+            "points": "r"
+        },
+        {
+            "bonus_added": true,
+            "date": "2024-11-03",
+            "event": 10,
+            "points": "r"
+        },
+        {
+            "bonus_added": true,
+            "date": "2024-11-04",
+            "event": 10,
+            "points": "r"
+        }
+    ],
+    "leagues": "Updated"
+}
