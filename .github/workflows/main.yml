@@ -3,7 +3,7 @@ name: Retrieve data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 20 12 *'
+    - cron: '0 12 25 12 *'
 
 jobs:
   run_script:
